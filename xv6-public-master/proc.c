@@ -7,9 +7,20 @@
 #include "proc.h"
 #include "spinlock.h"
 
+//change: make 3 arrays representing 3 priority levels
+struct proc* q0[NPROC];
+struct proc* q1[NPROC];
+struct proc* q2[NPROC];
+//change: make 3 integers, each representing the end (first empty space) of the corresponding queue
+//therefore, for each queue, index 0 is always the head, and when we insert new elements, insert at the tail index
+//each time we schedule, schedule the process at index 0, and move each of the later proceeses one space forward, and tail--.
+uint tail0=0;
+uint tail1=0;
+uint tail2=0;
+
 struct {
   struct spinlock lock;
-  struct proc proc[NPROC];
+  struct proc proc[NPROC]; 
 } ptable;
 
 static struct proc *initproc;
@@ -88,6 +99,12 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  //change: put the new process at the tail of q0 and set its num_ticks to 0
+  p->level=0;
+  p->num_ticks=0;
+  p->q2_ticks=0;
+  q0[tail0]=p;
+  tail0++;
 
   release(&ptable.lock);
 
@@ -332,6 +349,7 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
+    /*
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
@@ -349,7 +367,134 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
+    }*/
+
+    //change: go over each queue (q0->q1->q2) to find available process
+    bool found=false;
+
+    //first search within q0
+    for(int i=0;i<tail0;i++){
+      if(q0[i]->state!=RUNNABLE)
+        continue;
+      found=true;
+      //this part just copy the original scheduling function
+      // Switch to chosen process.  It is the process's job
+      // to release ptable.lock and then reacquire it
+      // before jumping back to us.
+      p=q0[i];
+      c->proc = p;
+      switchuvm(p);
+      p->state = RUNNING;
+      //change: before p is going to be swtiched in, move each remaining process in that queue one space forward.
+      //This always happens because even if p does not use up all its time-slice (can stay at the same queue), it will be moved to the tail.
+      for(int j=i;j<tail0;j++){
+        q0[j]=q0[j+1];
+      }
+      tail0--;
+
+      swtch(&(c->scheduler), p->context);
+      switchkvm();
+
+      // Process is done running for now.
+      // It should have changed its p->state before coming back.
+      c->proc = 0;
+      //change: now check if that process has used up all its time-slice
+      if(p->num_ticks==time_slice[p->level]){
+        //move it to the end of a lower queue
+        q1[tail1]=p;
+        p->level=1;
+        tail1++;
+      }
+      else{
+        //move it to the end of the current queue
+        q0[tail0]=p;
+        tail0++;
+      }
+      p->num_ticks=0;
+      break;
     }
+    //change: if we found a runnable process and it completes its running, use "continue" to start from q0 to search for the next process
+    if(found)
+      continue;
+
+    //if no runnable process within q0, search within q1
+    for(int i=0;i<tail1;i++){
+      if(q1[i]->state!=RUNNABLE)
+        continue;
+      found=true;
+      //this part just copy the original scheduling function
+      // Switch to chosen process.  It is the process's job
+      // to release ptable.lock and then reacquire it
+      // before jumping back to us.
+      p=q1[i];
+      c->proc = p;
+      switchuvm(p);
+      p->state = RUNNING;
+      //change: before p is going to be swtiched in, move each remaining process in that queue one space forward.
+      //This always happens because even if p does not use up all its time-slice (can stay at the same queue), it will be moved to the tail.
+      for(int j=i;j<tail1;j++){
+        q1[j]=q1[j+1];
+      }
+      tail1--;
+
+      swtch(&(c->scheduler), p->context);
+      switchkvm();
+
+      // Process is done running for now.
+      // It should have changed its p->state before coming back.
+      c->proc = 0;
+      //change: now check if that process has used up all its time-slice
+      if(p->num_ticks==time_slice[p->level]){
+        //move it to the end of a lower queue
+        q2[tail2]=p;
+        p->level=2;
+        tail2++;
+      }
+      else{
+        //move it to the end of the current queue
+        q1[tail1]=p;
+        tail1++;
+      }
+      p->num_ticks=0;
+      break;
+    }
+    //change: if we found a runnable process and it completes its running, use "continue" to start from q0 to search for the next process
+    if(found)
+      continue;
+
+    //if no runnable process within q1, search within q2
+    for(int i=0;i<tail2;i++){
+      if(q2[i]->state!=RUNNABLE)
+        continue;
+      found=true;
+      //this part just copy the original scheduling function
+      // Switch to chosen process.  It is the process's job
+      // to release ptable.lock and then reacquire it
+      // before jumping back to us.
+      p=q2[i];
+      c->proc = p;
+      switchuvm(p);
+      p->state = RUNNING;
+      //change: before p is going to be swtiched in, move each remaining process in that queue one space forward.
+      //This always happens because even if p does not use up all its time-slice (can stay at the same queue), it will be moved to the tail.
+      for(int j=i;j<tail2;j++){
+        q2[j]=q2[j+1];
+      }
+      tail2--;
+
+      swtch(&(c->scheduler), p->context);
+      switchkvm();
+
+      // Process is done running for now.
+      // It should have changed its p->state before coming back.
+      c->proc = 0;
+      //change: this is the lowest queue, so after yielding, process will remain in this queue (move to the tail of q2)
+      q2[tail2]=p;
+      tail2++;
+      p->num_ticks=0;
+      break;
+    }
+
     release(&ptable.lock);
 
   }

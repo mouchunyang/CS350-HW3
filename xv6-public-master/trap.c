@@ -11,6 +11,17 @@
 // Interrupt descriptor table (shared by all CPUs).
 struct gatedesc idt[256];
 extern uint vectors[];  // in vectors.S: array of 256 entry pointers
+
+//change: get the time-slice at each level
+extern uint time_slice;
+//change: get the queues
+extern struct proc* q0[];
+extern struct proc* q1[];
+extern struct proc* q2[];
+extern uint tail0;
+extern uint tail1;
+extern uint tail2;
+
 struct spinlock tickslock;
 uint ticks;
 
@@ -102,9 +113,35 @@ trap(struct trapframe *tf)
 
   // Force process to give up CPU on clock tick.
   // If interrupts were on while locks held, would need to check nlock.
+
+  //change: yield only when the process's num_tick is equal to its time-slice at that level
+  //also, add 1 to all processes in q2, and move to q0 if needed.
   if(myproc() && myproc()->state == RUNNING &&
-     tf->trapno == T_IRQ0+IRQ_TIMER)
-    yield();
+     tf->trapno == T_IRQ0+IRQ_TIMER){
+
+    int tail2_after=tail2;
+    for(int i=0;i<tail2;i++){
+      struct proc *p=q2[i];
+      p->q2_ticks=p->q2_ticks+1;
+      if(p->q2_ticks==50){
+        //remove it from q2 and add it to the tail of q0
+        p->q2_ticks=0;
+        q0[tail0]=p;
+        tail0++;
+        for(int j=i;j<tail2;j++){
+          q2[j]=q2[j+1];
+        }
+        tail2--;
+        //i-- because i should stay at the same place to check the process right after p
+        i--;
+
+      }
+    }
+
+    myproc()->num_ticks=myproc()->num_ticks+1;
+    if(myproc()->num_ticks==time_slice[myproc()->level])
+      yield();
+  }
 
   // Check if the process has been killed since we yielded
   if(myproc() && myproc()->killed && (tf->cs&3) == DPL_USER)
