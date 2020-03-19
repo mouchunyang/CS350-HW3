@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include <stdbool.h>
 
 //change: make 3 arrays representing 3 priority levels
 struct proc* q0[NPROC];
@@ -107,7 +108,7 @@ found:
   tail0++;
 
   //change:task 2
-  p->sched_stats={{0}};
+  //p->sched_stats={{0}};
   p->num_sched_stats=0;
 
   release(&ptable.lock);
@@ -406,7 +407,7 @@ scheduler(void)
       c->proc = 0;
 
       //change: change the process's times array, ticks array and sched_stats
-      p->times[p->level]=p->time[p->level]+1;
+      p->times[p->level]=p->times[p->level]+1;
       p->ticks[p->level]=p->num_ticks;
       p->sched_stats[p->num_sched_stats].duration=p->num_ticks;
       p->sched_stats[p->num_sched_stats].priority=p->level;
@@ -458,7 +459,7 @@ scheduler(void)
       c->proc = 0;
 
       //change: change the process's times array, ticks array and sched_stats
-      p->times[p->level]=p->time[p->level]+1;
+      p->times[p->level]=p->times[p->level]+1;
       p->ticks[p->level]=p->num_ticks;
       p->sched_stats[p->num_sched_stats].duration=p->num_ticks;
       p->sched_stats[p->num_sched_stats].priority=p->level;
@@ -513,7 +514,7 @@ scheduler(void)
       c->proc = 0;
 
       //change: change the process's times array, ticks array and sched_stats
-      p->times[p->level]=p->time[p->level]+1;
+      p->times[p->level]=p->times[p->level]+1;
       p->ticks[p->level]=p->num_ticks;
       p->sched_stats[p->num_sched_stats].duration=p->num_ticks;
       p->sched_stats[p->num_sched_stats].priority=p->level;
@@ -723,10 +724,10 @@ int getpinfo(int pid){
       cprintf("ticks= {%d, %d, %d}\n",p->ticks[0],p->ticks[1],p->ticks[2]);
       cprintf("times= {%d, %d, %d}\n",p->times[0],p->times[1],p->times[2]);
       cprintf("******************************\n");
-      struct sched_stat_t[] curr_sched_stat=p->sched_stats;
+      struct sched_stat_t* curr_sched_stat=p->sched_stats;
       for(int i=0;i<p->num_sched_stats;i++){
         struct sched_stat_t curr_stat=curr_sched_stat[i];
-        cprintf("start= %d, duration= %d, priority= %d \n",curr_stat.start_tick,curr_stat.duration,start_tick.priority);
+        cprintf("start= %d, duration= %d, priority= %d \n",curr_stat.start_tick,curr_stat.duration,curr_stat.priority);
       }
     }
   }

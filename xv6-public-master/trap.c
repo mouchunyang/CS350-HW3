@@ -64,13 +64,13 @@ trap(struct trapframe *tf)
       ticks++;
 
       //change: add 1 to all processes in q2, and move to q0 if q2_ticks is already 50
-      int tail2_after=tail2;
       for(int i=0;i<tail2;i++){
         struct proc *p=q2[i];
 
-        if(p->state==RUNNABLE) //if a process in q2 is runnable, add 1 to its tick counter
+        if(p->state==RUNNABLE){ //if a process in q2 is runnable, add 1 to its tick counter
           p->q2_ticks=p->q2_ticks+1;
           p->wait_time=p->wait_time+1;
+        }
 
         if(p->q2_ticks==50){
           //remove it from q2 and add it to the tail of q0
