@@ -376,7 +376,9 @@ scheduler(void)
     for(int i=0;i<tail0;i++){
       if(q0[i]->state!=RUNNABLE)
         continue;
-      found=true;
+
+      found=true; //we know that we find a process that is runnable
+
       //this part just copy the original scheduling function
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -413,7 +415,8 @@ scheduler(void)
       p->num_ticks=0;
       break;
     }
-    //change: if we found a runnable process and it completes its running, use "continue" to start from q0 to search for the next process
+
+    //change: if we found a runnable process and it completes its running, use "continue" to re-start from head of q0 to search for the next process
     if(found)
       continue;
 
@@ -422,10 +425,7 @@ scheduler(void)
       if(q1[i]->state!=RUNNABLE)
         continue;
       found=true;
-      //this part just copy the original scheduling function
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
+
       p=q1[i];
       c->proc = p;
       switchuvm(p);
@@ -458,6 +458,7 @@ scheduler(void)
       p->num_ticks=0;
       break;
     }
+    
     //change: if we found a runnable process and it completes its running, use "continue" to start from q0 to search for the next process
     if(found)
       continue;
