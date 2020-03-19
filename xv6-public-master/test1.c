@@ -6,6 +6,8 @@ int
 main(int argc, char *argv[]){
 	if(fork()==0){
 		exec("test1_2.c",argv);
+		exit();
 	}
+	exit();
 	return 0;
 }
