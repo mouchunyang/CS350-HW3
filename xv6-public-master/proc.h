@@ -13,7 +13,7 @@ struct cpu {
 };
 
 //change: define the time-slice that each process can have at each level of queue
-uint time_slice[3] ={1,2,8};
+//uint time_slice[3] ={1,2,8};
 extern struct cpu cpus[NCPU];
 extern int ncpu;
 

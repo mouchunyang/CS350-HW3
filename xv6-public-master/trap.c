@@ -86,9 +86,11 @@ trap(struct trapframe *tf)
 
         }
       }
+      if(myproc())
+        myproc()->num_ticks=myproc()->num_ticks+1;
 
-    myproc()->num_ticks=myproc()->num_ticks+1;
       wakeup(&ticks);
+      
       release(&tickslock);
     }
     lapiceoi();

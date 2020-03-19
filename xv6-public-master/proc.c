@@ -12,6 +12,7 @@
 struct proc* q0[NPROC];
 struct proc* q1[NPROC];
 struct proc* q2[NPROC];
+uint time_slice[3] ={1,2,8};
 //change: make 3 integers, each representing the end (first empty space) of the corresponding queue
 //therefore, for each queue, index 0 is always the head, and when we insert new elements, insert at the tail index
 //each time we schedule, schedule the process at index 0, and move each of the later proceeses one space forward, and tail--.
