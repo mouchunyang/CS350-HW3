@@ -106,6 +106,10 @@ found:
   q0[tail0]=p;
   tail0++;
 
+  //change:task 2
+  p->sched_stats={{0}};
+  p->num_sched_stats=0;
+
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -400,6 +404,15 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
+
+      //change: change the process's times array, ticks array and sched_stats
+      p->times[p->level]=p->time[p->level]+1;
+      p->ticks[p->level]=p->num_ticks;
+      p->sched_stats[p->num_sched_stats].duration=p->num_ticks;
+      p->sched_stats[p->num_sched_stats].priority=p->level;
+      p->sched_stats[p->num_sched_stats].start_tick=0;
+      p->num_sched_stats=p->num_sched_stats+1;
+
       //change: now check if that process has used up all its time-slice
       if(p->num_ticks==time_slice[p->level]){
         //move it to the end of a lower queue
@@ -443,6 +456,15 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
+
+      //change: change the process's times array, ticks array and sched_stats
+      p->times[p->level]=p->time[p->level]+1;
+      p->ticks[p->level]=p->num_ticks;
+      p->sched_stats[p->num_sched_stats].duration=p->num_ticks;
+      p->sched_stats[p->num_sched_stats].priority=p->level;
+      p->sched_stats[p->num_sched_stats].start_tick=0;
+      p->num_sched_stats=p->num_sched_stats+1;
+
       //change: now check if that process has used up all its time-slice
       if(p->num_ticks==time_slice[p->level]){
         //move it to the end of a lower queue
@@ -458,7 +480,7 @@ scheduler(void)
       p->num_ticks=0;
       break;
     }
-    
+
     //change: if we found a runnable process and it completes its running, use "continue" to start from q0 to search for the next process
     if(found)
       continue;
@@ -489,6 +511,15 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
+
+      //change: change the process's times array, ticks array and sched_stats
+      p->times[p->level]=p->time[p->level]+1;
+      p->ticks[p->level]=p->num_ticks;
+      p->sched_stats[p->num_sched_stats].duration=p->num_ticks;
+      p->sched_stats[p->num_sched_stats].priority=p->level;
+      p->sched_stats[p->num_sched_stats].start_tick=0;
+      p->num_sched_stats=p->num_sched_stats+1;
+
       //change: this is the lowest queue, so after yielding, process will remain in this queue (move to the tail of q2)
       q2[tail2]=p;
       tail2++;
@@ -677,4 +708,28 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+//change: add a new system call called "getpinfo"
+int getpinfo(int pid){
+  struct proc *p;
+
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid==pid){
+      cprintf("******************************\n");
+      cprintf("Name= %s, pid= %d \n",p->name,p->pid);
+      cprintf("Wait time= %d\n",p->wait_time);
+      cprintf("ticks= {%d, %d, %d}\n",p->ticks[0],p->ticks[1],p->ticks[2]);
+      cprintf("times= {%d, %d, %d}\n",p->times[0],p->times[1],p->times[2]);
+      cprintf("******************************\n");
+      struct sched_stat_t[] curr_sched_stat=p->sched_stats;
+      for(int i=0;i<p->num_sched_stats;i++){
+        struct sched_stat_t curr_stat=curr_sched_stat[i];
+        cprintf("start= %d, duration= %d, priority= %d \n",curr_stat.start_tick,curr_stat.duration,start_tick.priority);
+      }
+    }
+  }
+  release(&ptable.lock);
+  return 0;
 }

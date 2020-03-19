@@ -13,7 +13,7 @@ struct gatedesc idt[256];
 extern uint vectors[];  // in vectors.S: array of 256 entry pointers
 
 //change: get the time-slice at each level
-extern uint time_slice;
+extern uint time_slice[];
 //change: get the queues
 extern struct proc* q0[];
 extern struct proc* q1[];
@@ -70,6 +70,7 @@ trap(struct trapframe *tf)
 
         if(p->state==RUNNABLE) //if a process in q2 is runnable, add 1 to its tick counter
           p->q2_ticks=p->q2_ticks+1;
+          p->wait_time=p->wait_time+1;
 
         if(p->q2_ticks==50){
           //remove it from q2 and add it to the tail of q0

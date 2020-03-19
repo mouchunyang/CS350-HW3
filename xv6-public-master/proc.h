@@ -1,3 +1,5 @@
+#include "pstat.h"
+
 // Per-CPU state
 struct cpu {
   uchar apicid;                // Local APIC ID
@@ -57,6 +59,14 @@ struct proc {
   uint level;
   uint num_ticks;
   uint q2_ticks;
+
+  //change: task2
+  int times[3];
+  int ticks[3];
+  uint wait_time;
+  struct sched_stat_t sched_stats[NSCHEDSTATS];
+  uint num_sched_stats;
+
 };
 
 // Process memory is laid out contiguously, low addresses first:
