@@ -17,7 +17,6 @@ main(int argc, char *argv[]){
             close(fd);
 	    }
 	    getpinfo(getpid());
-	    //exit();
 	}
 	else{
 		int val = 0;;
