@@ -341,40 +341,26 @@ wait(void)
 //  - swtch to start running that process
 //  - eventually that process transfers control
 //      via swtch back to the scheduler.
-void
+void 
 scheduler(void)
 {
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
   
+  //change
+  uint ticksBeforeStart = 0;
+  bool ticksCountStart = false;
+
   for(;;){
+
     // Enable interrupts on this processor.
     sti();
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    /*
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
+    
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
-
-      swtch(&(c->scheduler), p->context);
-      switchkvm();
-
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
-      c->proc = 0;
-    }*/
-
-    //change: go over each queue (q0->q1->q2) to find available process
     bool found=false;
 
     //first search within q0
@@ -407,11 +393,19 @@ scheduler(void)
       c->proc = 0;
 
       //change: change the process's times array, ticks array and sched_stats
+      
+       //change
+      if (ticksCountStart == false){
+        ticksCountStart = true;
+        ticksBeforeStart = ticks;
+        cprintf("ticksBeforeStart: %d\n\n" , ticksBeforeStart);
+      }
+
       p->times[p->level]=p->times[p->level]+1;
       p->ticks[p->level]=p->num_ticks;
       p->sched_stats[p->num_sched_stats].duration=p->num_ticks;
       p->sched_stats[p->num_sched_stats].priority=p->level;
-      p->sched_stats[p->num_sched_stats].start_tick=0;
+      p->sched_stats[p->num_sched_stats].start_tick=ticks - ticksBeforeStart;
       p->num_sched_stats=p->num_sched_stats+1;
 
       //change: now check if that process has used up all its time-slice
@@ -465,7 +459,7 @@ scheduler(void)
       p->ticks[p->level]=p->num_ticks;
       p->sched_stats[p->num_sched_stats].duration=p->num_ticks;
       p->sched_stats[p->num_sched_stats].priority=p->level;
-      p->sched_stats[p->num_sched_stats].start_tick=0;
+      p->sched_stats[p->num_sched_stats].start_tick=ticks - ticksBeforeStart;
       p->num_sched_stats=p->num_sched_stats+1;
 
       //change: now check if that process has used up all its time-slice
@@ -522,7 +516,7 @@ scheduler(void)
       p->ticks[p->level]=p->num_ticks;
       p->sched_stats[p->num_sched_stats].duration=p->num_ticks;
       p->sched_stats[p->num_sched_stats].priority=p->level;
-      p->sched_stats[p->num_sched_stats].start_tick=0;
+      p->sched_stats[p->num_sched_stats].start_tick=ticks - ticksBeforeStart;
       p->num_sched_stats=p->num_sched_stats+1;
 
       //change: this is the lowest queue, so after yielding, process will remain in this queue (move to the tail of q2)
