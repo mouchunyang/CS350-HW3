@@ -432,8 +432,10 @@ scheduler(void)
     }
 
     //change: if we found a runnable process and it completes its running, use "continue" to re-start from head of q0 to search for the next process
-    if(found)
+    if(found){
+      release(&ptable.lock);
       continue;
+    }
 
     //if no runnable process within q0, search within q1
     for(int i=0;i<tail1;i++){
