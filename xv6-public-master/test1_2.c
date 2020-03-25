@@ -2,8 +2,10 @@
 #include "stat.h"
 #include "user.h"
 
+
 int
 main(int argc, char *argv[]){
-	cprintf("hello\n");
+	printf(1,"hello\n");
+	exit();
 	return 0;
 }

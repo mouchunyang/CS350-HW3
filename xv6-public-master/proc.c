@@ -113,7 +113,6 @@ found:
   p->num_sched_stats=0;
 
   release(&ptable.lock);
-
   // Allocate kernel stack.
   if((p->kstack = kalloc()) == 0){
     p->state = UNUSED;
@@ -486,8 +485,10 @@ scheduler(void)
     }
 
     //change: if we found a runnable process and it completes its running, use "continue" to start from q0 to search for the next process
-    if(found)
+    if(found){
+      release(&ptable.lock);
       continue;
+    }
 
     //if no runnable process within q1, search within q2
     for(int i=0;i<tail2;i++){
