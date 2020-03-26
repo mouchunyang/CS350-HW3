@@ -6,27 +6,27 @@
 //#include <string.h>
 //#include <stdio.h>
 
+int fib(int i){
+	if(i<=1)
+		return i;
+	return fib(i-1)+fib(i-2);
+}
+
 int
 main(int argc, char *argv[]){
-	if(fork()==0){
-		//printf(1, "IO start\n");
-		//mkdir("backup");
-	    for (int i = 0; i < 10000000; ++i){
-	    	printf(1, "1");
-	    	
-	    }
-	    getpinfo(getpid());
+	int pid=getpid();
+	fork();
+	if(pid==getpid()){
+		//if it is parent process
+		fib(35);
 	}
 	else{
-		//printf(1, "Add start\n");
-		int val = 0;
-        for (int i = 0; i < 1000000000; ++i){
-        	//\printf(1, "Executed add loop %d\n", i);
-            val += 1;
-        }
-        printf(1, "val: %d\n", val);
-        getpinfo(getpid());
+		//if it is child process
+		for(int i=0;i<200;i++){
+			printf(1,"%d\n",i);
+		}
 	}
+	wait();
+	getpinfo(getpid());
 	exit();
-	return 0;
 }
