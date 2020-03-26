@@ -77,6 +77,7 @@ trap(struct trapframe *tf)
           p->q2_ticks=0;
           q0[tail0]=p;
           tail0++;
+          p->level = 0;
           for(int j=i;j<tail2;j++){
             q2[j]=q2[j+1];
           }

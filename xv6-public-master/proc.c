@@ -365,8 +365,10 @@ scheduler(void)
 
     //first search within q0
     for(int i=0;i<tail0;i++){
+
       if(q0[i]->state!=RUNNABLE)
         continue;
+      
 
       found=true; //we know that we find a process that is runnable
 
@@ -374,17 +376,19 @@ scheduler(void)
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
-      p=q0[i];
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
+
       //change: before p is going to be swtiched in, move each remaining process in that queue one space forward.
       //This always happens because even if p does not use up all its time-slice (can stay at the same queue), it will be moved to the tail.
+      p=q0[i];
+      c->proc = p;
       for(int j=i;j<tail0;j++){
         q0[j]=q0[j+1];
       }
       tail0--;
-
+      p->sched_stats[p->num_sched_stats].start_tick=ticks - ticksBeforeStart;
+      switchuvm(p);
+      p->state = RUNNING;
+      
       swtch(&(c->scheduler), p->context);
       switchkvm();
 
@@ -393,7 +397,7 @@ scheduler(void)
       c->proc = 0;
 
       //change: change the process's times array, ticks array and sched_stats
-      
+
        //change
       if (ticksCountStart == false){
         ticksCountStart = true;
@@ -405,7 +409,6 @@ scheduler(void)
       p->ticks[p->level]=p->num_ticks;
       p->sched_stats[p->num_sched_stats].duration=p->num_ticks;
       p->sched_stats[p->num_sched_stats].priority=p->level;
-      p->sched_stats[p->num_sched_stats].start_tick=ticks - ticksBeforeStart;
       p->num_sched_stats=p->num_sched_stats+1;
 
       //change: now check if that process has used up all its time-slice
@@ -438,14 +441,18 @@ scheduler(void)
 
       p=q1[i];
       c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
+
       //change: before p is going to be swtiched in, move each remaining process in that queue one space forward.
       //This always happens because even if p does not use up all its time-slice (can stay at the same queue), it will be moved to the tail.
       for(int j=i;j<tail1;j++){
         q1[j]=q1[j+1];
       }
       tail1--;
+
+      p->sched_stats[p->num_sched_stats].start_tick=ticks - ticksBeforeStart;
+      switchuvm(p);
+      p->state = RUNNING;
+      
 
       swtch(&(c->scheduler), p->context);
       switchkvm();
@@ -459,7 +466,6 @@ scheduler(void)
       p->ticks[p->level]=p->num_ticks;
       p->sched_stats[p->num_sched_stats].duration=p->num_ticks;
       p->sched_stats[p->num_sched_stats].priority=p->level;
-      p->sched_stats[p->num_sched_stats].start_tick=ticks - ticksBeforeStart;
       p->num_sched_stats=p->num_sched_stats+1;
 
       //change: now check if that process has used up all its time-slice
@@ -495,14 +501,17 @@ scheduler(void)
       // before jumping back to us.
       p=q2[i];
       c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
+
       //change: before p is going to be swtiched in, move each remaining process in that queue one space forward.
       //This always happens because even if p does not use up all its time-slice (can stay at the same queue), it will be moved to the tail.
       for(int j=i;j<tail2;j++){
         q2[j]=q2[j+1];
       }
       tail2--;
+
+      p->sched_stats[p->num_sched_stats].start_tick=ticks - ticksBeforeStart;
+      switchuvm(p);
+      p->state = RUNNING;
 
       swtch(&(c->scheduler), p->context);
       switchkvm();
@@ -516,7 +525,6 @@ scheduler(void)
       p->ticks[p->level]=p->num_ticks;
       p->sched_stats[p->num_sched_stats].duration=p->num_ticks;
       p->sched_stats[p->num_sched_stats].priority=p->level;
-      p->sched_stats[p->num_sched_stats].start_tick=ticks - ticksBeforeStart;
       p->num_sched_stats=p->num_sched_stats+1;
 
       //change: this is the lowest queue, so after yielding, process will remain in this queue (move to the tail of q2)
