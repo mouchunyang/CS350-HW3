@@ -7674,7 +7674,7 @@ myproc(void) {
       p->num_sched_stats=p->num_sched_stats+1;
 80103d80:	89 83 f4 46 00 00    	mov    %eax,0x46f4(%ebx)
       if(p->num_ticks==time_slice[p->level]){
-80103d86:	0f 84 4c 01 00 00    	je     80103ed8 <scheduler+0x3f8>
+80103d86:	0f 84 54 01 00 00    	je     80103ee0 <scheduler+0x400>
         q1[tail1]=p;
 80103d8c:	a1 bc a5 10 80       	mov    0x8010a5bc,%eax
 80103d91:	89 1c 85 40 2e 11 80 	mov    %ebx,-0x7feed1c0(,%eax,4)
@@ -7696,7 +7696,7 @@ myproc(void) {
     for(int i=0;i<tail2;i++){
 80103dc0:	8b 15 b8 a5 10 80    	mov    0x8010a5b8,%edx
 80103dc6:	85 d2                	test   %edx,%edx
-80103dc8:	0f 84 ef 00 00 00    	je     80103ebd <scheduler+0x3dd>
+80103dc8:	0f 84 f9 00 00 00    	je     80103ec7 <scheduler+0x3e7>
       if(q2[i]->state!=RUNNABLE)
 80103dce:	8b 1d 40 2d 11 80    	mov    0x80112d40,%ebx
     for(int i=0;i<tail2;i++){
@@ -7707,7 +7707,7 @@ myproc(void) {
     for(int i=0;i<tail2;i++){
 80103de0:	83 c0 01             	add    $0x1,%eax
 80103de3:	39 d0                	cmp    %edx,%eax
-80103de5:	0f 84 d2 00 00 00    	je     80103ebd <scheduler+0x3dd>
+80103de5:	0f 84 dc 00 00 00    	je     80103ec7 <scheduler+0x3e7>
       if(q2[i]->state!=RUNNABLE)
 80103deb:	8b 1c 85 40 2d 11 80 	mov    -0x7feed2c0(,%eax,4),%ebx
 80103df2:	83 7b 0c 03          	cmpl   $0x3,0xc(%ebx)
@@ -7737,73 +7737,74 @@ myproc(void) {
 80103e2a:	a1 c0 f6 22 80       	mov    0x8022f6c0,%eax
 80103e2f:	2b 45 e4             	sub    -0x1c(%ebp),%eax
 80103e32:	89 84 93 a4 00 00 00 	mov    %eax,0xa4(%ebx,%edx,4)
+      p->q2_ticks=0;
+80103e39:	c7 83 84 00 00 00 00 	movl   $0x0,0x84(%ebx)
+80103e40:	00 00 00 
       switchuvm(p);
-80103e39:	53                   	push   %ebx
-80103e3a:	e8 01 30 00 00       	call   80106e40 <switchuvm>
+80103e43:	53                   	push   %ebx
+80103e44:	e8 f7 2f 00 00       	call   80106e40 <switchuvm>
       p->state = RUNNING;
-80103e3f:	c7 43 0c 04 00 00 00 	movl   $0x4,0xc(%ebx)
+80103e49:	c7 43 0c 04 00 00 00 	movl   $0x4,0xc(%ebx)
       swtch(&(c->scheduler), p->context);
-80103e46:	58                   	pop    %eax
-80103e47:	5a                   	pop    %edx
-80103e48:	ff 73 1c             	pushl  0x1c(%ebx)
-80103e4b:	ff 75 dc             	pushl  -0x24(%ebp)
-80103e4e:	e8 58 0d 00 00       	call   80104bab <swtch>
+80103e50:	58                   	pop    %eax
+80103e51:	5a                   	pop    %edx
+80103e52:	ff 73 1c             	pushl  0x1c(%ebx)
+80103e55:	ff 75 dc             	pushl  -0x24(%ebp)
+80103e58:	e8 4e 0d 00 00       	call   80104bab <swtch>
       switchkvm();
-80103e53:	e8 c8 2f 00 00       	call   80106e20 <switchkvm>
+80103e5d:	e8 be 2f 00 00       	call   80106e20 <switchkvm>
       c->proc = 0;
-80103e58:	c7 86 ac 00 00 00 00 	movl   $0x0,0xac(%esi)
-80103e5f:	00 00 00 
+80103e62:	c7 86 ac 00 00 00 00 	movl   $0x0,0xac(%esi)
+80103e69:	00 00 00 
       p->times[p->level]=p->times[p->level]+1;
-80103e62:	8b 4b 7c             	mov    0x7c(%ebx),%ecx
+80103e6c:	8b 4b 7c             	mov    0x7c(%ebx),%ecx
       break;
-80103e65:	83 c4 10             	add    $0x10,%esp
-80103e68:	8d 04 8b             	lea    (%ebx,%ecx,4),%eax
+80103e6f:	83 c4 10             	add    $0x10,%esp
+80103e72:	8d 04 8b             	lea    (%ebx,%ecx,4),%eax
       p->times[p->level]=p->times[p->level]+1;
-80103e6b:	83 80 88 00 00 00 01 	addl   $0x1,0x88(%eax)
+80103e75:	83 80 88 00 00 00 01 	addl   $0x1,0x88(%eax)
       p->ticks[p->level]=p->num_ticks;
-80103e72:	8b bb 80 00 00 00    	mov    0x80(%ebx),%edi
-80103e78:	89 b8 94 00 00 00    	mov    %edi,0x94(%eax)
+80103e7c:	8b bb 80 00 00 00    	mov    0x80(%ebx),%edi
+80103e82:	89 b8 94 00 00 00    	mov    %edi,0x94(%eax)
       p->sched_stats[p->num_sched_stats].duration=p->num_ticks;
-80103e7e:	8b 83 f4 46 00 00    	mov    0x46f4(%ebx),%eax
-80103e84:	8d 14 40             	lea    (%eax,%eax,2),%edx
+80103e88:	8b 83 f4 46 00 00    	mov    0x46f4(%ebx),%eax
+80103e8e:	8d 14 40             	lea    (%eax,%eax,2),%edx
       p->num_sched_stats=p->num_sched_stats+1;
-80103e87:	83 c0 01             	add    $0x1,%eax
+80103e91:	83 c0 01             	add    $0x1,%eax
       p->sched_stats[p->num_sched_stats].duration=p->num_ticks;
-80103e8a:	8d 14 93             	lea    (%ebx,%edx,4),%edx
-80103e8d:	89 ba a8 00 00 00    	mov    %edi,0xa8(%edx)
+80103e94:	8d 14 93             	lea    (%ebx,%edx,4),%edx
+80103e97:	89 ba a8 00 00 00    	mov    %edi,0xa8(%edx)
       p->sched_stats[p->num_sched_stats].priority=p->level;
-80103e93:	89 8a ac 00 00 00    	mov    %ecx,0xac(%edx)
+80103e9d:	89 8a ac 00 00 00    	mov    %ecx,0xac(%edx)
       p->num_sched_stats=p->num_sched_stats+1;
-80103e99:	89 83 f4 46 00 00    	mov    %eax,0x46f4(%ebx)
+80103ea3:	89 83 f4 46 00 00    	mov    %eax,0x46f4(%ebx)
       q2[tail2]=p;
-80103e9f:	a1 b8 a5 10 80       	mov    0x8010a5b8,%eax
-80103ea4:	89 1c 85 40 2d 11 80 	mov    %ebx,-0x7feed2c0(,%eax,4)
+80103ea9:	a1 b8 a5 10 80       	mov    0x8010a5b8,%eax
+80103eae:	89 1c 85 40 2d 11 80 	mov    %ebx,-0x7feed2c0(,%eax,4)
       tail2++;
-80103eab:	83 c0 01             	add    $0x1,%eax
+80103eb5:	83 c0 01             	add    $0x1,%eax
       p->num_ticks=0;
-80103eae:	c7 83 80 00 00 00 00 	movl   $0x0,0x80(%ebx)
-80103eb5:	00 00 00 
+80103eb8:	c7 83 80 00 00 00 00 	movl   $0x0,0x80(%ebx)
+80103ebf:	00 00 00 
       tail2++;
-80103eb8:	a3 b8 a5 10 80       	mov    %eax,0x8010a5b8
+80103ec2:	a3 b8 a5 10 80       	mov    %eax,0x8010a5b8
     release(&ptable.lock);
-80103ebd:	83 ec 0c             	sub    $0xc,%esp
-80103ec0:	68 40 30 11 80       	push   $0x80113040
-80103ec5:	e8 56 0a 00 00       	call   80104920 <release>
-80103eca:	83 c4 10             	add    $0x10,%esp
-80103ecd:	e9 3e fc ff ff       	jmp    80103b10 <scheduler+0x30>
-80103ed2:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+80103ec7:	83 ec 0c             	sub    $0xc,%esp
+80103eca:	68 40 30 11 80       	push   $0x80113040
+80103ecf:	e8 4c 0a 00 00       	call   80104920 <release>
+80103ed4:	83 c4 10             	add    $0x10,%esp
+80103ed7:	e9 34 fc ff ff       	jmp    80103b10 <scheduler+0x30>
+80103edc:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
         q2[tail2]=p;
-80103ed8:	a1 b8 a5 10 80       	mov    0x8010a5b8,%eax
-80103edd:	89 1c 85 40 2d 11 80 	mov    %ebx,-0x7feed2c0(,%eax,4)
+80103ee0:	a1 b8 a5 10 80       	mov    0x8010a5b8,%eax
+80103ee5:	89 1c 85 40 2d 11 80 	mov    %ebx,-0x7feed2c0(,%eax,4)
         tail2++;
-80103ee4:	83 c0 01             	add    $0x1,%eax
+80103eec:	83 c0 01             	add    $0x1,%eax
         p->level=2;
-80103ee7:	c7 43 7c 02 00 00 00 	movl   $0x2,0x7c(%ebx)
+80103eef:	c7 43 7c 02 00 00 00 	movl   $0x2,0x7c(%ebx)
         tail2++;
-80103eee:	a3 b8 a5 10 80       	mov    %eax,0x8010a5b8
-80103ef3:	e9 a8 fe ff ff       	jmp    80103da0 <scheduler+0x2c0>
-80103ef8:	90                   	nop
-80103ef9:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+80103ef6:	a3 b8 a5 10 80       	mov    %eax,0x8010a5b8
+80103efb:	e9 a0 fe ff ff       	jmp    80103da0 <scheduler+0x2c0>
       c->proc = p;
 80103f00:	89 9e ac 00 00 00    	mov    %ebx,0xac(%esi)
     for(int i=0;i<tail2;i++){

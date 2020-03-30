@@ -7,23 +7,31 @@
 //#include <stdio.h>
 
 int fib(int i){
-	if(i<=1)
+	if(i<2){
 		return i;
-	return fib(i-1)+fib(i-2);
+	}
+	else{
+		return fib(i-1)+fib(i-2);
+	}
 }
 
 int
 main(int argc, char *argv[]){
-	int pid=getpid();
-	fork();
-	if(pid==getpid()){
-		//if it is parent process
+	
+	if(fork()!=0){
+		//pid==3
 		fib(35);
 	}
 	else{
-		//if it is child process
-		for(int i=0;i<200;i++){
-			printf(1,"%d\n",i);
+		//pid==4
+		for(int i=0;i<300;i++){
+			
+			int fd=open("test1_2.c", O_RDONLY);
+			char buf[20];
+			read(fd,buf,sizeof buf);
+			
+			//printf(1,"a\n");
+
 		}
 	}
 	wait();

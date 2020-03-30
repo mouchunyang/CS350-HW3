@@ -510,6 +510,7 @@ scheduler(void)
       tail2--;
 
       p->sched_stats[p->num_sched_stats].start_tick=ticks - ticksBeforeStart;
+      p->q2_ticks=0;
       switchuvm(p);
       p->state = RUNNING;
 
