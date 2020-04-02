@@ -58,18 +58,18 @@ main(int argc, char *argv[]){
   58:	68 46 08 00 00       	push   $0x846
   5d:	6a 01                	push   $0x1
   5f:	e8 7c 04 00 00       	call   4e0 <printf>
-  64:	83 c4 10             	add    $0x10,%esp
 		wait();
+  64:	e8 31 03 00 00       	call   39a <wait>
+  69:	83 c4 10             	add    $0x10,%esp
 		//printf(1,"exited\n");
 		
 	}
 	
-	wait();
-  67:	e8 2e 03 00 00       	call   39a <wait>
+	//wait();
 	if(pid==getpid()){
   6c:	e8 a1 03 00 00       	call   412 <getpid>
   71:	39 f8                	cmp    %edi,%eax
-  73:	74 59                	je     ce <main+0xce>
+  73:	74 63                	je     d8 <main+0xd8>
 		//wait();
 		getpinfo(getpid());
 	}
@@ -105,19 +105,18 @@ main(int argc, char *argv[]){
   c5:	75 d1                	jne    98 <main+0x98>
 		wait();
   c7:	e8 ce 02 00 00       	call   39a <wait>
-  cc:	eb 99                	jmp    67 <main+0x67>
+		wait();
+  cc:	e8 c9 02 00 00       	call   39a <wait>
+		wait();
+  d1:	e8 c4 02 00 00       	call   39a <wait>
+  d6:	eb 94                	jmp    6c <main+0x6c>
 		getpinfo(getpid());
-  ce:	e8 3f 03 00 00       	call   412 <getpid>
-  d3:	83 ec 0c             	sub    $0xc,%esp
-  d6:	50                   	push   %eax
-  d7:	e8 56 03 00 00       	call   432 <getpinfo>
-  dc:	83 c4 10             	add    $0x10,%esp
-  df:	eb 94                	jmp    75 <main+0x75>
-  e1:	66 90                	xchg   %ax,%ax
-  e3:	66 90                	xchg   %ax,%ax
-  e5:	66 90                	xchg   %ax,%ax
-  e7:	66 90                	xchg   %ax,%ax
-  e9:	66 90                	xchg   %ax,%ax
+  d8:	e8 35 03 00 00       	call   412 <getpid>
+  dd:	83 ec 0c             	sub    $0xc,%esp
+  e0:	50                   	push   %eax
+  e1:	e8 4c 03 00 00       	call   432 <getpinfo>
+  e6:	83 c4 10             	add    $0x10,%esp
+  e9:	eb 8a                	jmp    75 <main+0x75>
   eb:	66 90                	xchg   %ax,%ax
   ed:	66 90                	xchg   %ax,%ax
   ef:	90                   	nop
