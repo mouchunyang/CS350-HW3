@@ -58,18 +58,18 @@ main(int argc, char *argv[]){
   58:	68 46 08 00 00       	push   $0x846
   5d:	6a 01                	push   $0x1
   5f:	e8 7c 04 00 00       	call   4e0 <printf>
+  64:	83 c4 10             	add    $0x10,%esp
 		wait();
-  64:	e8 31 03 00 00       	call   39a <wait>
-  69:	83 c4 10             	add    $0x10,%esp
 		//printf(1,"exited\n");
 		
 	}
 	
-	//wait();
+	wait();
+  67:	e8 2e 03 00 00       	call   39a <wait>
 	if(pid==getpid()){
   6c:	e8 a1 03 00 00       	call   412 <getpid>
   71:	39 f8                	cmp    %edi,%eax
-  73:	74 63                	je     d8 <main+0xd8>
+  73:	74 5e                	je     d3 <main+0xd3>
 		//wait();
 		getpinfo(getpid());
 	}
@@ -107,19 +107,19 @@ main(int argc, char *argv[]){
   c7:	e8 ce 02 00 00       	call   39a <wait>
 		wait();
   cc:	e8 c9 02 00 00       	call   39a <wait>
-		wait();
-  d1:	e8 c4 02 00 00       	call   39a <wait>
-  d6:	eb 94                	jmp    6c <main+0x6c>
+  d1:	eb 94                	jmp    67 <main+0x67>
 		getpinfo(getpid());
-  d8:	e8 35 03 00 00       	call   412 <getpid>
-  dd:	83 ec 0c             	sub    $0xc,%esp
-  e0:	50                   	push   %eax
-  e1:	e8 4c 03 00 00       	call   432 <getpinfo>
-  e6:	83 c4 10             	add    $0x10,%esp
-  e9:	eb 8a                	jmp    75 <main+0x75>
-  eb:	66 90                	xchg   %ax,%ax
-  ed:	66 90                	xchg   %ax,%ax
-  ef:	90                   	nop
+  d3:	e8 3a 03 00 00       	call   412 <getpid>
+  d8:	83 ec 0c             	sub    $0xc,%esp
+  db:	50                   	push   %eax
+  dc:	e8 51 03 00 00       	call   432 <getpinfo>
+  e1:	83 c4 10             	add    $0x10,%esp
+  e4:	eb 8f                	jmp    75 <main+0x75>
+  e6:	66 90                	xchg   %ax,%ax
+  e8:	66 90                	xchg   %ax,%ax
+  ea:	66 90                	xchg   %ax,%ax
+  ec:	66 90                	xchg   %ax,%ax
+  ee:	66 90                	xchg   %ax,%ax
 
 000000f0 <fib>:
 int fib(int i){

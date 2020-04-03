@@ -11780,9 +11780,9 @@ trap(struct trapframe *tf)
 80105c90:	e8 8b db ff ff       	call   80103820 <myproc>
 80105c95:	85 c0                	test   %eax,%eax
 80105c97:	8b 5f 38             	mov    0x38(%edi),%ebx
-80105c9a:	0f 84 13 03 00 00    	je     80105fb3 <trap+0x353>
+80105c9a:	0f 84 04 03 00 00    	je     80105fa4 <trap+0x344>
 80105ca0:	f6 47 3c 03          	testb  $0x3,0x3c(%edi)
-80105ca4:	0f 84 09 03 00 00    	je     80105fb3 <trap+0x353>
+80105ca4:	0f 84 fa 02 00 00    	je     80105fa4 <trap+0x344>
 
 static inline uint
 rcr2(void)
@@ -11992,105 +11992,107 @@ rcr2(void)
 80105ea6:	68 80 ee 22 80       	push   $0x8022ee80
 80105eab:	e8 b0 e9 ff ff       	call   80104860 <acquire>
       for(int i=0;i<tail2;i++){
-80105eb0:	8b 0d b8 a5 10 80    	mov    0x8010a5b8,%ecx
+80105eb0:	8b 1d b8 a5 10 80    	mov    0x8010a5b8,%ebx
       ticks++;
 80105eb6:	83 05 c0 f6 22 80 01 	addl   $0x1,0x8022f6c0
       for(int i=0;i<tail2;i++){
 80105ebd:	83 c4 10             	add    $0x10,%esp
 80105ec0:	8b 35 c0 a5 10 80    	mov    0x8010a5c0,%esi
 80105ec6:	c6 45 e4 00          	movb   $0x0,-0x1c(%ebp)
-80105eca:	85 c9                	test   %ecx,%ecx
-80105ecc:	0f 84 9e 00 00 00    	je     80105f70 <trap+0x310>
-80105ed2:	8b 45 e0             	mov    -0x20(%ebp),%eax
-80105ed5:	eb 10                	jmp    80105ee7 <trap+0x287>
-80105ed7:	89 f6                	mov    %esi,%esi
-80105ed9:	8d bc 27 00 00 00 00 	lea    0x0(%edi,%eiz,1),%edi
-80105ee0:	83 c0 01             	add    $0x1,%eax
-80105ee3:	39 c8                	cmp    %ecx,%eax
-80105ee5:	73 71                	jae    80105f58 <trap+0x2f8>
+80105eca:	85 db                	test   %ebx,%ebx
+80105ecc:	74 43                	je     80105f11 <trap+0x2b1>
+80105ece:	8b 45 e0             	mov    -0x20(%ebp),%eax
+80105ed1:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
         struct proc *p=q2[i];
-80105ee7:	8b 14 85 40 2d 11 80 	mov    -0x7feed2c0(,%eax,4),%edx
-        if(p->state==RUNNABLE){ //if a process in q2 is runnable, add 1 to its tick counter
-80105eee:	83 7a 0c 03          	cmpl   $0x3,0xc(%edx)
-80105ef2:	8b 9a 84 00 00 00    	mov    0x84(%edx),%ebx
-80105ef8:	75 10                	jne    80105f0a <trap+0x2aa>
-          p->wait_time=p->wait_time+1;
-80105efa:	83 82 a0 00 00 00 01 	addl   $0x1,0xa0(%edx)
+80105ed8:	8b 14 85 40 2d 11 80 	mov    -0x7feed2c0(,%eax,4),%edx
+        if(p->state!=RUNNABLE)
+80105edf:	83 7a 0c 03          	cmpl   $0x3,0xc(%edx)
+80105ee3:	75 1b                	jne    80105f00 <trap+0x2a0>
           p->q2_ticks=p->q2_ticks+1;
-80105f01:	83 c3 01             	add    $0x1,%ebx
-80105f04:	89 9a 84 00 00 00    	mov    %ebx,0x84(%edx)
+80105ee5:	8b 8a 84 00 00 00    	mov    0x84(%edx),%ecx
+          p->wait_time=p->wait_time+1;
+80105eeb:	83 82 a0 00 00 00 01 	addl   $0x1,0xa0(%edx)
+          p->q2_ticks=p->q2_ticks+1;
+80105ef2:	83 c1 01             	add    $0x1,%ecx
         if(p->q2_ticks==50){
-80105f0a:	83 fb 32             	cmp    $0x32,%ebx
-80105f0d:	75 d1                	jne    80105ee0 <trap+0x280>
-          p->q2_ticks=0;
-80105f0f:	c7 82 84 00 00 00 00 	movl   $0x0,0x84(%edx)
-80105f16:	00 00 00 
-          q0[tail0]=p;
-80105f19:	89 14 b5 40 2f 11 80 	mov    %edx,-0x7feed0c0(,%esi,4)
-          tail0++;
-80105f20:	83 c6 01             	add    $0x1,%esi
-          for(int j=i;j<tail2;j++){
-80105f23:	39 c1                	cmp    %eax,%ecx
-          p->level = 0;
-80105f25:	c7 42 7c 00 00 00 00 	movl   $0x0,0x7c(%edx)
-          for(int j=i;j<tail2;j++){
-80105f2c:	76 17                	jbe    80105f45 <trap+0x2e5>
-80105f2e:	89 c2                	mov    %eax,%edx
-            q2[j]=q2[j+1];
-80105f30:	83 c2 01             	add    $0x1,%edx
-80105f33:	8b 1c 95 40 2d 11 80 	mov    -0x7feed2c0(,%edx,4),%ebx
-          for(int j=i;j<tail2;j++){
-80105f3a:	39 ca                	cmp    %ecx,%edx
-            q2[j]=q2[j+1];
-80105f3c:	89 1c 95 3c 2d 11 80 	mov    %ebx,-0x7feed2c4(,%edx,4)
-          for(int j=i;j<tail2;j++){
-80105f43:	75 eb                	jne    80105f30 <trap+0x2d0>
-          tail2--;
-80105f45:	83 e9 01             	sub    $0x1,%ecx
-          i--;
-80105f48:	83 e8 01             	sub    $0x1,%eax
-80105f4b:	c6 45 e4 01          	movb   $0x1,-0x1c(%ebp)
-80105f4f:	eb 8f                	jmp    80105ee0 <trap+0x280>
-80105f51:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
-80105f58:	80 7d e4 00          	cmpb   $0x0,-0x1c(%ebp)
-80105f5c:	74 12                	je     80105f70 <trap+0x310>
-80105f5e:	89 35 c0 a5 10 80    	mov    %esi,0x8010a5c0
-80105f64:	89 0d b8 a5 10 80    	mov    %ecx,0x8010a5b8
-80105f6a:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+80105ef5:	83 f9 32             	cmp    $0x32,%ecx
+          p->q2_ticks=p->q2_ticks+1;
+80105ef8:	89 8a 84 00 00 00    	mov    %ecx,0x84(%edx)
+        if(p->q2_ticks==50){
+80105efe:	74 58                	je     80105f58 <trap+0x2f8>
+      for(int i=0;i<tail2;i++){
+80105f00:	83 c0 01             	add    $0x1,%eax
+80105f03:	39 d8                	cmp    %ebx,%eax
+80105f05:	72 d1                	jb     80105ed8 <trap+0x278>
+80105f07:	80 7d e4 00          	cmpb   $0x0,-0x1c(%ebp)
+80105f0b:	0f 85 bb 00 00 00    	jne    80105fcc <trap+0x36c>
       if(myproc())
-80105f70:	e8 ab d8 ff ff       	call   80103820 <myproc>
-80105f75:	85 c0                	test   %eax,%eax
-80105f77:	74 19                	je     80105f92 <trap+0x332>
+80105f11:	e8 0a d9 ff ff       	call   80103820 <myproc>
+80105f16:	85 c0                	test   %eax,%eax
+80105f18:	74 19                	je     80105f33 <trap+0x2d3>
         myproc()->num_ticks=myproc()->num_ticks+1;
-80105f79:	e8 a2 d8 ff ff       	call   80103820 <myproc>
-80105f7e:	8b 98 80 00 00 00    	mov    0x80(%eax),%ebx
-80105f84:	e8 97 d8 ff ff       	call   80103820 <myproc>
-80105f89:	83 c3 01             	add    $0x1,%ebx
-80105f8c:	89 98 80 00 00 00    	mov    %ebx,0x80(%eax)
+80105f1a:	e8 01 d9 ff ff       	call   80103820 <myproc>
+80105f1f:	8b 98 80 00 00 00    	mov    0x80(%eax),%ebx
+80105f25:	e8 f6 d8 ff ff       	call   80103820 <myproc>
+80105f2a:	83 c3 01             	add    $0x1,%ebx
+80105f2d:	89 98 80 00 00 00    	mov    %ebx,0x80(%eax)
       wakeup(&ticks);
-80105f92:	83 ec 0c             	sub    $0xc,%esp
-80105f95:	68 c0 f6 22 80       	push   $0x8022f6c0
-80105f9a:	e8 81 e3 ff ff       	call   80104320 <wakeup>
+80105f33:	83 ec 0c             	sub    $0xc,%esp
+80105f36:	68 c0 f6 22 80       	push   $0x8022f6c0
+80105f3b:	e8 e0 e3 ff ff       	call   80104320 <wakeup>
       release(&tickslock);
-80105f9f:	c7 04 24 80 ee 22 80 	movl   $0x8022ee80,(%esp)
-80105fa6:	e8 75 e9 ff ff       	call   80104920 <release>
-80105fab:	83 c4 10             	add    $0x10,%esp
-80105fae:	e9 2a fe ff ff       	jmp    80105ddd <trap+0x17d>
-80105fb3:	0f 20 d6             	mov    %cr2,%esi
+80105f40:	c7 04 24 80 ee 22 80 	movl   $0x8022ee80,(%esp)
+80105f47:	e8 d4 e9 ff ff       	call   80104920 <release>
+80105f4c:	83 c4 10             	add    $0x10,%esp
+80105f4f:	e9 89 fe ff ff       	jmp    80105ddd <trap+0x17d>
+80105f54:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+          p->q2_ticks=0;
+80105f58:	c7 82 84 00 00 00 00 	movl   $0x0,0x84(%edx)
+80105f5f:	00 00 00 
+          q0[tail0]=p;
+80105f62:	89 14 b5 40 2f 11 80 	mov    %edx,-0x7feed0c0(,%esi,4)
+          tail0++;
+80105f69:	83 c6 01             	add    $0x1,%esi
+          for(int j=i;j<tail2;j++){
+80105f6c:	39 c3                	cmp    %eax,%ebx
+          p->level = 0;
+80105f6e:	c7 42 7c 00 00 00 00 	movl   $0x0,0x7c(%edx)
+          for(int j=i;j<tail2;j++){
+80105f75:	76 1e                	jbe    80105f95 <trap+0x335>
+80105f77:	89 c2                	mov    %eax,%edx
+80105f79:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+            q2[j]=q2[j+1];
+80105f80:	83 c2 01             	add    $0x1,%edx
+80105f83:	8b 0c 95 40 2d 11 80 	mov    -0x7feed2c0(,%edx,4),%ecx
+          for(int j=i;j<tail2;j++){
+80105f8a:	39 da                	cmp    %ebx,%edx
+            q2[j]=q2[j+1];
+80105f8c:	89 0c 95 3c 2d 11 80 	mov    %ecx,-0x7feed2c4(,%edx,4)
+          for(int j=i;j<tail2;j++){
+80105f93:	75 eb                	jne    80105f80 <trap+0x320>
+          tail2--;
+80105f95:	83 eb 01             	sub    $0x1,%ebx
+          i--;
+80105f98:	83 e8 01             	sub    $0x1,%eax
+80105f9b:	c6 45 e4 01          	movb   $0x1,-0x1c(%ebp)
+80105f9f:	e9 5c ff ff ff       	jmp    80105f00 <trap+0x2a0>
+80105fa4:	0f 20 d6             	mov    %cr2,%esi
       cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n",
-80105fb6:	e8 45 d8 ff ff       	call   80103800 <cpuid>
-80105fbb:	83 ec 0c             	sub    $0xc,%esp
-80105fbe:	56                   	push   %esi
-80105fbf:	53                   	push   %ebx
-80105fc0:	50                   	push   %eax
-80105fc1:	ff 77 30             	pushl  0x30(%edi)
-80105fc4:	68 8c 7d 10 80       	push   $0x80107d8c
-80105fc9:	e8 92 a6 ff ff       	call   80100660 <cprintf>
+80105fa7:	e8 54 d8 ff ff       	call   80103800 <cpuid>
+80105fac:	83 ec 0c             	sub    $0xc,%esp
+80105faf:	56                   	push   %esi
+80105fb0:	53                   	push   %ebx
+80105fb1:	50                   	push   %eax
+80105fb2:	ff 77 30             	pushl  0x30(%edi)
+80105fb5:	68 8c 7d 10 80       	push   $0x80107d8c
+80105fba:	e8 a1 a6 ff ff       	call   80100660 <cprintf>
       panic("trap");
-80105fce:	83 c4 14             	add    $0x14,%esp
-80105fd1:	68 62 7d 10 80       	push   $0x80107d62
-80105fd6:	e8 b5 a3 ff ff       	call   80100390 <panic>
-80105fdb:	66 90                	xchg   %ax,%ax
+80105fbf:	83 c4 14             	add    $0x14,%esp
+80105fc2:	68 62 7d 10 80       	push   $0x80107d62
+80105fc7:	e8 c4 a3 ff ff       	call   80100390 <panic>
+80105fcc:	89 35 c0 a5 10 80    	mov    %esi,0x8010a5c0
+80105fd2:	89 1d b8 a5 10 80    	mov    %ebx,0x8010a5b8
+80105fd8:	e9 34 ff ff ff       	jmp    80105f11 <trap+0x2b1>
 80105fdd:	66 90                	xchg   %ax,%ax
 80105fdf:	90                   	nop
 

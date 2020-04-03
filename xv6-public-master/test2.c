@@ -26,10 +26,8 @@ main(int argc, char *argv[]){
 		printf(1,"result is %d\n",fib(35));
 		//end=1;
 		printf(1,"ended\n");
-		wait();
 	}
 	else{
-		//child process
 		//pid==4
 		//int p_num=0;
 		fork();
@@ -43,12 +41,11 @@ main(int argc, char *argv[]){
 		}
 		wait();
 		wait();
-		wait();
 		//printf(1,"exited\n");
 		
 	}
 	
-	//wait();
+	wait();
 	if(pid==getpid()){
 		//wait();
 		getpinfo(getpid());
