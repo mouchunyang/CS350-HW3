@@ -23,7 +23,7 @@ main(int argc, char *argv[]){
 	
 	if(fork()!=0){
 		//pid==3
-		printf(1,"result is %d\n",fib(35));
+		printf(1,"result is %d\n",fib(38));
 		//end=1;
 		printf(1,"ended\n");
 	}
@@ -34,9 +34,11 @@ main(int argc, char *argv[]){
 		fork();
 		fork();
 		for(int i=0;i<400;i++){
-			int fd=open("test1_2.c", O_RDONLY);
-			char buf[20];
-			read(fd,buf,sizeof buf);
+			for (int j = 0; j < 3; ++j){
+				int fd=open("test1_2.c", O_RDONLY);
+				char buf[20];
+				read(fd,buf,sizeof buf);
+			}
 			sleep(1);
 		}
 		wait();
