@@ -495,6 +495,7 @@ scheduler(void)
     for(int i=0;i<tail2;i++){
       if(q2[i]->state!=RUNNABLE)
         continue;
+
       found=true;
       //this part just copy the original scheduling function
       // Switch to chosen process.  It is the process's job
@@ -502,7 +503,8 @@ scheduler(void)
       // before jumping back to us.
       p=q2[i];
       c->proc = p;
-
+      
+      //cprintf("Start: %d, processid: %d\n", ticks - ticksBeforeStart, p->pid);
       //change: before p is going to be swtiched in, move each remaining process in that queue one space forward.
       //This always happens because even if p does not use up all its time-slice (can stay at the same queue), it will be moved to the tail.
       for(int j=i;j<tail2;j++){
@@ -726,17 +728,19 @@ int getpinfo(int pid){
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->pid==pid){
-      cprintf("******************************\n");
-      cprintf("Name= %s, pid= %d \n",p->name,p->pid);
-      cprintf("Wait time= %d\n",p->wait_time);
-      cprintf("ticks= {%d, %d, %d}\n",p->ticks[0],p->ticks[1],p->ticks[2]);
-      cprintf("times= {%d, %d, %d}\n",p->times[0],p->times[1],p->times[2]);
-      cprintf("******************************\n");
+      cprintf("PSTAT_START\n");
+      cprintf("***************\n");
+      cprintf("name = %s, pid = %d \n",p->name,p->pid);
+      cprintf("Wait time = %d\n",p->q2_ticks);
+      cprintf("ticks = {%d, %d, %d}\n",p->ticks[0],p->ticks[1],p->ticks[2]);
+      cprintf("times = {%d, %d, %d}\n",p->times[0],p->times[1],p->times[2]);
+      cprintf("***************\n");
       struct sched_stat_t* curr_sched_stat=p->sched_stats;
       for(int i=0;i<p->num_sched_stats;i++){
         struct sched_stat_t curr_stat=curr_sched_stat[i];
-        cprintf("start= %d, duration= %d, priority= %d \n",curr_stat.start_tick,curr_stat.duration,curr_stat.priority);
+        cprintf("start = %d, duration = %d, priority = %d \n",curr_stat.start_tick,curr_stat.duration,curr_stat.priority);
       }
+      cprintf("PSTAT_END\n");
     }
   }
   release(&ptable.lock);

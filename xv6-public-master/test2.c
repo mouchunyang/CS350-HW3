@@ -18,7 +18,7 @@ int fib(int i){
 
 int
 main(int argc, char *argv[]){
-	int pid=getpid();
+	//int pid=getpid();
 	//volatile int end=0;
 	
 	if(fork()!=0){
@@ -48,10 +48,10 @@ main(int argc, char *argv[]){
 	}
 	
 	wait();
-	if(pid==getpid()){
+	//if(pid==getpid()){
 		//wait();
-		getpinfo(getpid());
-	}
+	getpinfo(getpid());
+	//}
 	exit();
 	//wait();
 	//getpinfo(getpid());
