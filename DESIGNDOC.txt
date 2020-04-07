@@ -1,0 +1,16 @@
+1. Implement MFQ policy
+Proc.c:
+First we add three lists q0, q1, q2 in proc.c. In function scheduler(), we implement a for loop to search for Runnable process in each queue, from higher priority to lower priority. If we found a runnable process in a higher priority queue, we schedule it and then call switchkvm to let it run. After it finishes, we check whether it has used up its time slices in the current priority queue. If it does, we move it to a lower level queue unless it is in q2 already. If it doesn't, we simply move it to the back of the current queue.
+If we cannot find any runnable process in current priority queue, we simply search for runnable process in lower priority queues.
+
+trap.c:
+In function trap(), we update current process's num_ticks data field at the end of each timer tick. Moreover, we yield only when the process's num_tick is equal to its time-slice at that level.
+
+2. Implementing priority boosting:
+trap.c:
+At the end of each timer tick, we increment every runnable processes's wait_time in q2. If we found that its wait_time reaches 50, we move it to q0. 
+Proc.c
+Everytime a process is scheduled, we clear its wait_time.
+
+3. 
+Workload Description of our test program.
