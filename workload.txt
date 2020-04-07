@@ -1,0 +1,10 @@
+Test1:
+	We use two processes in this test. The CPU-intensive process calculates Fibonacci(35). The I/O intensive process keeps openning and reading a file. These two processes both take much longer than 3 ticks, so they will go to Q2. Since there will only be two processes in Q2, each of them will run for 8 ticks before switching, and none of them will get boosted. 
+	In the graph, when the child process has finished but the parent process has not, the child process will call getpinfo() and print out its scheduling information, so there is a 2-tick gap for printing these out. Other parts in the graph show that theses two processes take turns to run in Q2.
+
+Test2:
+	We create one long process (calculating Fibonacci(38)) in this test. This will take much longer than 3 ticks, so it will go to Q2. We also create 8 small processes, and each of them just does some simple and quick I/O and call sleep() before running out of its scheduled time. In this way, they are in Q0 or Q1 and are trying to starve the long process at Q2.
+	In the graph, we can see that when those short processes are running, if without boosting, the long process will have to wait until all the short processes finish. However, with boosting, the long process will get boosted to Q0 occasionally, so the long process can still run at some periods of time. This can increase the performance of this CPU-intensive process because it can still have the chance to run even if the short processes has not finished yet.
+
+Test3:
+	This process only calls sleep(1) every time it is scheduled. In this way, it will never uses up its 1 tick, so it can trick the scheduler and keep staying in Q0.
